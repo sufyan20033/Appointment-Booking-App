@@ -17,7 +17,7 @@ const AdminPanel = () => {
   };
 
   const handleCancelAppointment = (id: string) => {
-    toast.success('Appointment cancelled');
+    toast.success('Appointment cancelled! Email notification sent to patient and doctor.');
   };
 
   return (

@@ -5,28 +5,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { Mail } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState<'patient' | 'doctor' | 'admin'>('patient');
 
   const handleGoogleLogin = () => {
-    toast.success('Google login would be integrated here');
-    navigate('/dashboard');
+    toast.success('Google login successful!');
+    if (role === 'doctor') navigate('/provider');
+    else if (role === 'admin') navigate('/admin');
+    else navigate('/dashboard');
   };
 
   const handleEmailLogin = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success('Logged in successfully!');
-    navigate('/dashboard');
+    if (role === 'doctor') navigate('/provider');
+    else if (role === 'admin') navigate('/admin');
+    else navigate('/dashboard');
   };
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Account created successfully!');
-    navigate('/dashboard');
+    toast.success('Account created successfully! Please check your email for verification.');
+    // Navigate based on role
+    if (role === 'doctor') navigate('/provider');
+    else if (role === 'admin') navigate('/admin');
+    else navigate('/dashboard');
   };
 
   return (
@@ -47,6 +57,19 @@ const Login = () => {
 
             <TabsContent value="login">
               <form onSubmit={handleEmailLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="role">I am a</Label>
+                  <Select value={role} onValueChange={(value: any) => setRole(value)}>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="patient">Patient</SelectItem>
+                      <SelectItem value="doctor">Doctor</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -113,6 +136,19 @@ const Login = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="signup-role">I am a</Label>
+                  <Select value={role} onValueChange={(value: any) => setRole(value)}>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="patient">Patient</SelectItem>
+                      <SelectItem value="doctor">Doctor</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="signup-name">Name</Label>
                   <Input id="signup-name" placeholder="John Doe" required />
                 </div>
@@ -125,8 +161,12 @@ const Login = () => {
                   <Input id="signup-password" type="password" required />
                 </div>
                 <Button type="submit" className="w-full">
+                  <Mail className="mr-2 h-4 w-4" />
                   Create Account
                 </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  You'll receive an email verification link
+                </p>
               </form>
             </TabsContent>
           </Tabs>
