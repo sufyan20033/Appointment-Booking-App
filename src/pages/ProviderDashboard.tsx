@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Calendar, Clock, Plus, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -121,25 +122,39 @@ const ProviderDashboard = () => {
           {/* Upcoming Appointments */}
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Appointments</CardTitle>
-              <CardDescription>Your scheduled appointments</CardDescription>
+              <CardTitle>My Appointments</CardTitle>
+              <CardDescription>All your scheduled appointments</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {providerAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="space-y-1">
-                    <p className="font-medium">User #{appointment.userId}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {appointment.date} at {appointment.startTime}
-                    </p>
-                  </div>
-                  <Badge variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}>
-                    {appointment.status}
-                  </Badge>
-                </div>
-              ))}
-              {providerAppointments.length === 0 && (
+            <CardContent>
+              {providerAppointments.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">No appointments yet</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Patient</TableHead>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Time</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {providerAppointments.map((appointment) => (
+                      <TableRow key={appointment.id}>
+                        <TableCell className="font-medium">User #{appointment.userId}</TableCell>
+                        <TableCell>{appointment.service}</TableCell>
+                        <TableCell>{appointment.date}</TableCell>
+                        <TableCell>{appointment.startTime} - {appointment.endTime}</TableCell>
+                        <TableCell>
+                          <Badge variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}>
+                            {appointment.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               )}
             </CardContent>
           </Card>
