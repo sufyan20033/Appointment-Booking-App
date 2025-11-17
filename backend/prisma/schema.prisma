@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId     Int          @id @default(autoincrement())
+  name       String
+  email      String       @unique
+  password   String?      // optional for OAuth users
+  role       Role         @default(PATIENT)
+  provider   AuthProvider @default(LOCAL)
+  doctor     Doctor?
+  patient    Patient?
+  createdAt  DateTime     @default(now())
+}
+
+model Doctor {
+  doctorId     Int           @id @default(autoincrement())
+  speciality   String
+  user         User          @relation(fields: [userId], references: [userId])
+  userId       Int           @unique
+  clinics      Clinic[]
+  appointments Appointment[]
+}
+
+model Patient {
+  patientId    Int           @id @default(autoincrement())
+  address      String
+  phone        String
+  age          Int
+  user         User          @relation(fields: [userId], references: [userId])
+  userId       Int           @unique
+  appointments Appointment[]
+}
+
+model Clinic {
+  clinicId     Int           @id @default(autoincrement())
+  name         String
+  location     String
+  doctor       Doctor        @relation(fields: [doctorId], references: [doctorId])
+  doctorId     Int
+  appointments Appointment[]
+}
+
+model Appointment {
+  appId      Int                @id @default(autoincrement())
+  date       DateTime           // stores the day of appointment
+  startTime  DateTime
+  endTime    DateTime
+  patientId  Int?               
+  doctorId   Int
+  clinicId   Int
+  status     AppointmentStatus  @default(PENDING)
+  payment    Payment?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  patient    Patient?           @relation(fields: [patientId], references: [patientId])
+  doctor     Doctor             @relation(fields: [doctorId], references: [doctorId])
+  clinic     Clinic             @relation(fields: [clinicId], references: [clinicId])
+}                   
+
+model Payment {
+  paymentId      Int        @id @default(autoincrement())
+  appointment    Appointment @relation(fields: [appointmentId], references: [appId])
+  appointmentId  Int        @unique
+  amount         Float
+  currency       String     @default("USD")
+  status         PaymentStatus @default(PENDING)
+  stripePaymentId String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+enum Role {
+  DOCTOR
+  PATIENT
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
+}
